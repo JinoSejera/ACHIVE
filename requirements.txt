@@ -1,0 +1,5 @@
+semantic-kernel==1.11.0
+flask==3.0.3
+azure-search-document==11.5.1
+flask[aysnc]
+pyPDF2==3.0.1
