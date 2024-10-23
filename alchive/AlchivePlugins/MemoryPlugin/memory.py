@@ -16,10 +16,10 @@ class MemoryPlugin:
     def __init__(self, memory:SemanticTextMemoryBase):
         self._memory = memory
 
-    @kernel_function(description="Provides a list of knowledge retrieved from memory.")
+    @kernel_function(description="Provides a list of knowledge related to Biology retrieved from memory.")
     async def memories(self,
                  user_ask: Annotated[str, "What user ask to recall"]
-                 ) -> Annotated[str, "Returns all the memory in the knowledge base."]:
+                 ) -> Annotated[str, "Returns all the memory retrieve in the knowledge base."]:
         print(f"what is asked: {user_ask}")
 
 
