@@ -1,0 +1,16 @@
+import os
+
+class Settings:
+    # Fetch Credentials from environment variables
+    GLOBAL_LLM_SERVICE: str = os.getenv("GLOBAL_LLM_SERVICE")
+    AZURE_OPENAI_API_KEY: str = os.getenv("AZURE_OPENAI_API_KEY")
+    AZURE_OPENAI_ENDPOINT: str = os.getenv("AZURE_OPENAI_ENDPOINT")
+    AZURE_OPENAI_CHAT_DEPLOYMENT_NAME: str = os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT_NAME")
+    AZURE_OPENAI_TEXT_DEPLOYMENT_NAME: str = os.getenv("AZURE_OPENAI_TEXT_DEPLOYMENT_NAME")
+    AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: str = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME")
+    AZURE_OPENAI_API_VERSION: str = os.getenv("AZURE_OPENAI_API_VERSION")
+    AZURE_SEARCH_ADMIN_KEY: str = os.getenv("AZURE_SEARCH_ADMIN_KEY")
+    AZURE_SEARCH_ENDPOINT: str = os.getenv("AZURE_SEARCH_ENDPOINT")
+
+# Instantiate settings
+settings = Settings()

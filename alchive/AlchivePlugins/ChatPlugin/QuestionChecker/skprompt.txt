@@ -1,0 +1,17 @@
+<TASK AND INSTRUCTIONS>
+    - Determine whether user input question is a BROAD question or not.
+    - Response will be Yes or No only, no more than that.
+ Example:
+    user input: Life.
+    response: Yes
+
+    user input: What is Theory about Big Bang?
+    response: No
+
+    user: What is cell?
+    response: Yes
+
+</TASK AND INSTRUCTIONS>
+
+user input: {{$user_input}}
+response: 

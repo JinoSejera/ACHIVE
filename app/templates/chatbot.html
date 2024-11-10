@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+
+    </style>
+</head>
+<body>
+    <h1>Agent Alchive</h1>
+    <div id="chat-container">
+        <div id="chat-log">
+            <div class="message-container ai-response">
+                <i class="icon fas fa-robot"></i>
+                <div class="message-content">Hello! I am Alchive, how may I help you?</div>
+            </div>
+        </div>
+        <form id="chat-form">
+            <input type="text" id="message" name="message" placeholder="Type your message...">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    <script>
+        const form = document.getElementById('chat-form');
+        const chatLog = document.getElementById('chat-log');
+        var chat_history = "";
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const message = document.getElementById('message').value;
+            const userMessage = `
+                <div class="message-container user-message">
+                    <div class="message-content">${message}</div>
+                    <i id="user_icon" class="icon fas fa-user"></i>
+                </div>`;
+            chatLog.innerHTML = userMessage + chatLog.innerHTML;
+            form.reset();
+
+            const body = {
+                message: String(message),
+                history: chat_history
+            };
+
+            // Display bouncing dots
+            const dotsMessage = `
+                <div class="message-container ai-response">
+                    <i class="icon fas fa-robot"></i>
+                    <div class="message-content">
+                        <div class="dots-container">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                </div>`;
+            chatLog.innerHTML = dotsMessage + chatLog.innerHTML;
+
+            const response = await fetch('/api/v1/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const result = await response.json();
+
+            chat_history = result.history;
+
+            // Remove bouncing dots
+            const chatEntries = chatLog.innerHTML.split(dotsMessage);
+            chatLog.innerHTML = chatEntries[0] + chatEntries[1];
+
+            const aiResponse = `
+                <div class="message-container ai-response">
+                    <i class="icon fas fa-robot"></i>
+                    <div class="message-content">${result.message}</div>
+                </div>`;
+            chatLog.innerHTML = aiResponse + chatLog.innerHTML;
+        });
+    </script>
+</body>
+</html>

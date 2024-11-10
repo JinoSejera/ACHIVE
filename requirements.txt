@@ -1,5 +1,5 @@
 semantic-kernel==1.11.0
-flask==3.0.3
-azure-search-document==11.5.1
-flask[aysnc]
+azure-search-documents==11.5.1
+fastapi==0.115.3
+uvicorn==0.32.0
 pyPDF2==3.0.1
