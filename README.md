@@ -39,6 +39,8 @@ uvicorn app.main:app --reload
 ```
 
 ## Open Browser
-http://127.0.0.1:8000/api/v1/chatbot
+http://127.0.0.1:8000/
+or
+localhost:8000/
 
 Start chatting.

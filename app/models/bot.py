@@ -9,3 +9,5 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     message:str
     history:str
+    user_name:str
+    user_id:str

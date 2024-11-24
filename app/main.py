@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse
 
 from app.api.v1.endpoints import router as api_roputer
 
@@ -25,3 +25,7 @@ app.include_router(api_roputer, prefix="/api/v1")
 
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+@app.get("/")
+async def root():
+    return RedirectResponse("/api/v1/chatbot")

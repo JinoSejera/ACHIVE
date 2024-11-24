@@ -4,28 +4,171 @@
     <title>Chatbot</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
     <style>
 
     </style>
 </head>
 <body>
-    <h1>Agent Alchive</h1>
-    <div id="chat-container">
-        <div id="chat-log">
-            <div class="message-container ai-response">
-                <i class="icon fas fa-robot"></i>
-                <div class="message-content">Hello! I am Alchive, how may I help you?</div>
-            </div>
+    <div id="header">
+        <h1>Agent Alchive</h1>
+        <div id="user-info">
+            <span id="username"></span>
+            <span id="user_id"></span>
+            <button id="login-button">Login</button>
+            <button id="logout-button" style="display: none;">Logout</button>
         </div>
-        <form id="chat-form">
-            <input type="text" id="message" name="message" placeholder="Type your message...">
-            <button type="submit">Send</button>
-        </form>
     </div>
+    <div id="chat-container">
+        <div id="chat-history">
+            <h2>Chat History</h2>
+            <div id="chat-history-content"></div>
+        </div>
+        <div id="chat-main">
+            <div id="chat-log">
+                <div class="message-container ai-response">
+                    <i class="icon fas fa-robot"></i>
+                    <div class="message-content">
+                        Hello! I am Alchive, how may I help you?
+                        <button class="copy-button" onclick="copyToClipboard(this)">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <form id="chat-form">
+                <input type="text" id="message" name="message" placeholder="Type your message...">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+    <div id="login-popup" class="popup">
+        <p>Please log in to continue chatting.</p>
+        <button id="popup-login">Login</button>
+        <button id="popup-cancel">Cancel</button>
+    </div>
+    <!-- END HTML -->
     <script>
+        const msalConfig = {
+            auth: {
+                clientId: "{{ client_id }}",
+                authority: "https://login.microsoftonline.com/{{ tenant_id }}",
+                redirectUri: "{{ redirect_uri }}",
+            },
+            cache: {
+                cacheLocation: "sessionStorage",
+                storeAuthStateInCookie: false,
+            },
+        };
+
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
         const form = document.getElementById('chat-form');
         const chatLog = document.getElementById('chat-log');
+        const chatHistoryContent = document.getElementById('chat-history-content');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const usernameSpan = document.getElementById('username');
+        const useridSpan = document.getElementById('user_id');
+        const loginPopup = document.getElementById('login-popup');
+        const popupLoginButton = document.getElementById('popup-login');
+        const popupCancelButton = document.getElementById('popup-cancel');
         var chat_history = "";
+
+        loginButton.addEventListener('click', login);
+        logoutButton.addEventListener('click', logout);
+        popupLoginButton.addEventListener('click', login);
+        popupCancelButton.addEventListener('click', () => {
+            loginPopup.style.display = 'none';
+        });
+
+        async function login() {
+            try {
+                window.location.href = '/api/v1/login';
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function logout() {
+            window.location.href = '/api/v1/logout';
+        }
+
+        function updateUI(account) {
+            if (account) {
+                usernameSpan.textContent = account.name;
+                useridSpan.textContent = account.id
+                loginButton.style.display = 'none';
+                logoutButton.style.display = 'inline-block';
+                loadChatHistory();
+            } else {
+                usernameSpan.textContent = '';
+                loginButton.style.display = 'inline-block';
+                logoutButton.style.display = 'none';
+                chatHistoryContent.innerHTML = '';
+            }
+        }
+
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/v1/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'Check auth status', history: '' })
+                });
+                if (response.ok) {
+                    const userInfo = await response.json();
+                    updateUI({ name: userInfo.user_name, id: userInfo.user_id });
+                    console.log(userInfo.user_name)
+                } else {
+                    updateUI(null);
+                }
+            } catch (error) {
+                console.error('Error checking auth status:', error);
+                updateUI(null);
+            }
+        }
+
+        async function loadChatHistory() {
+            try {
+                const response = await fetch('/api/v1/load_chat_history');
+                if (response.ok) {
+                    const data = await response.json();
+                    displayChatHistory(data.chat_history);
+                } else {
+                    console.error('Failed to load chat history');
+                }
+            } catch (error) {
+                console.error('Error loading chat history:', error);
+            }
+        }
+
+        function displayChatHistory(history) {
+            chatHistoryContent.innerHTML = '';
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="timestamp">${new Date(item.timestamp).toLocaleString()}</div>
+                    <div>${item.sender}: ${item.message}</div>
+                `;
+                chatHistoryContent.appendChild(historyItem);
+            });
+        }
+
+        async function saveChatHistory(message, sender) {
+            try {
+                await fetch('/api/v1/save_chat_history', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, sender })
+                });
+            } catch (error) {
+                console.error('Error saving chat history:', error);
+            }
+        }
+
+        window.addEventListener('load', checkAuthStatus);
 
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -37,6 +180,8 @@
                 </div>`;
             chatLog.innerHTML = userMessage + chatLog.innerHTML;
             form.reset();
+
+            await saveChatHistory(message, 'User');
 
             const body = {
                 message: String(message),
@@ -57,26 +202,72 @@
                 </div>`;
             chatLog.innerHTML = dotsMessage + chatLog.innerHTML;
 
-            const response = await fetch('/api/v1/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-            const result = await response.json();
+            try {
+                const response = await fetch('/api/v1/chat', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
 
-            chat_history = result.history;
+                if (response.status === 401) {
+                    loginPopup.style.display = 'block';
+                    // Remove bouncing dots
+                    const chatEntries = chatLog.innerHTML.split(dotsMessage);
+                    chatLog.innerHTML = chatEntries[0] + chatEntries[1];
+                    return;
+                }
 
-            // Remove bouncing dots
-            const chatEntries = chatLog.innerHTML.split(dotsMessage);
-            chatLog.innerHTML = chatEntries[0] + chatEntries[1];
+                const result = await response.json();
 
-            const aiResponse = `
-                <div class="message-container ai-response">
-                    <i class="icon fas fa-robot"></i>
-                    <div class="message-content">${result.message}</div>
-                </div>`;
-            chatLog.innerHTML = aiResponse + chatLog.innerHTML;
+                chat_history = result.history;
+
+                // Remove bouncing dots
+                const chatEntries = chatLog.innerHTML.split(dotsMessage);
+                chatLog.innerHTML = chatEntries[0] + chatEntries[1];
+
+                const aiResponse = `
+                    <div class="message-container ai-response">
+                        <i class="icon fas fa-robot"></i>
+                        <div class="message-content">
+                            ${result.message}
+                            <button class="copy-button" onclick="copyToClipboard(this)">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                chatLog.innerHTML = aiResponse + chatLog.innerHTML;
+
+                await saveChatHistory(result.message, 'Bot');
+                loadChatHistory();
+            } catch (error) {
+                console.error('Error:', error);
+                // Remove bouncing dots
+                const chatEntries = chatLog.innerHTML.split(dotsMessage);
+                chatLog.innerHTML = chatEntries[0] + chatEntries[1];
+
+                const errorMessage = `
+                    <div class="message-container ai-response">
+                        <i class="icon fas fa-exclamation-triangle"></i>
+                        <div class="message-content">An error occurred. Please try again.</div>
+                    </div>`;
+                chatLog.innerHTML = errorMessage + chatLog.innerHTML;
+            }
         });
+
+        function copyToClipboard(button) {
+            const messageContent = button.parentElement.textContent.trim();
+            navigator.clipboard.writeText(messageContent).then(() => {
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy"></i>';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
     </script>
 </body>
 </html>
+
