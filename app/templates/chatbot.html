@@ -1,55 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
+    <link rel="stylesheet" href="/static/styles.css">
     <style>
 
     </style>
 </head>
-<body>
-    <div id="header">
-        <h1>Agent Alchive</h1>
-        <div id="user-info">
-            <span id="username"></span>
-            <span id="user_id"></span>
-            <button id="login-button">Login</button>
-            <button id="logout-button" style="display: none;">Logout</button>
+<body class="bg-green-50 font-poppins text-gray-800">
+    <div id="header" class="flex justify-between items-center text-white rounded-b-3xl h-15">
+        <img id="chat-history-expand-collapse-button" src="/static/img/chat-history.png"  alt="Expand/Collapse" class="text-2xl cursor-pointer" />
+        <img id="alchive-logo" src="/static/img/alchive-logo.png" alt="alchive logo" class="rounded-xl h-10">
+        <div id="user-info" class="relative">
+            <img id="user-info-icon" src="/static/img/user-icon.png" alt="user icon" class="w-8 h-8 rounded-full cursor-pointer hidden">
+            <button id="login-button" class="px-4 py-2 text-white-800 rounded-full hover:bg-white hover:text-green-500 transition">Log In</button>
+            <button id="signup-button" class="px-4 py-2 text-white-800 rounded-full hover:bg-white hover:text-green-500 transition ml-2">Sign Up</button>
+            <div id="logout-dropdown" class="hidden absolute top-full right-0 mt-2 w-55 bg-white rounded-lg shadow-lg p-4">
+                <span id="username" class="block text-sm text-white-600"></span>
+                <span id="user_id" class="block text-sm text-white-600 mb-2"></span>
+                <button id="logout-button" class="w-full px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition">Logout</button>
+            </div>
         </div>
     </div>
-    <div id="chat-container">
-        <div id="chat-history">
-            <h2>Chat History</h2>
-            <div id="chat-history-content"></div>
+  
+    <div id="chat-container" class="flex h-screen">
+        <div id="chat-history" class="w-0 transition-all duration-300 ease-in-out overflow-hidden flex flex-col inset-0 z-30">
+            <h2 id="chat-history-title" class="text-white text-center rounded-full">History Record</h2>
+            <div id="chat-history-content" class="overflow-y-scroll text-white flex-grow p-4"></div>
         </div>
-        <div id="chat-main">
-            <div id="chat-log">
-                <div class="message-container ai-response">
-                    <i class="icon fas fa-robot"></i>
-                    <div class="message-content">
-                        Hello! I am Alchive, how may I help you?
-                        <button class="copy-button" onclick="copyToClipboard(this)">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-                
+
+        <div id="chat-main" class="flex-grow flex flex-col p-4 transition-all duration-300 ease-in-out">
+            <div id="welcome-container" class="flex flex-col items-center justify-center h-screen"> 
+                <img id="chatbot-icon" src="/static/img/bot-icon.png" alt="chatbot header" class="rounded-full"> 
+                <div id="welcome-message" class="text-3xl font-semibold text-white mt-4"> 
+                    Hello! Welcome to Alchive, What can I help? 
+                </div> 
             </div>
-            <form id="chat-form">
-                <input type="text" id="message" name="message" placeholder="Type your message...">
-                <button type="submit">Send</button>
+            <div id="chat-log" class="flex-grow overflow-y-auto mb-4 flex flex-col-reverse gap-4"></div>
+
+            <form id="chat-form" class="flex mt-4">
+                <!-- <input type="text" id="message" name="message" placeholder="Message Alchive..." class="flex-grow p-2 border-2 text-white border-white-100 rounded-full"> -->
+                <textarea id="message" name="message" placeholder="Message Alchive..." 
+                class="flex-grow p-2 border-2 text-white border-white-100 rounded-full resize-none" rows="1"></textarea>
+                <button type="submit" class="px-6 py-2 text-white rounded-full hover:bg-green-600 transition">Send</button>
             </form>
         </div>
+    
     </div>
-    <div id="login-popup" class="popup">
-        <p>Please log in to continue chatting.</p>
-        <button id="popup-login">Login</button>
-        <button id="popup-cancel">Cancel</button>
+
+    <div id="login-popup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div id="login-alert"class="bg-white p-8 rounded-lg shadow-xl">
+            <p class="mb-4 text-white">Please log in to continue chatting.</p>
+            <div class="flex justify-center space-x-4">
+                <button id="popup-login" class="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition">Login</button>
+                <button id="popup-cancel" class="px-4 py-2 bg-red-800 text-white rounded-full hover:bg-red-400 transition">Cancel</button>
+            </div>
+        </div>
     </div>
-    <!-- END HTML -->
+    
+
     <script>
+        // JavaScript code remains largely the same, with a few adjustments for Tailwind classes
         const msalConfig = {
             auth: {
                 clientId: "{{ client_id }}",
@@ -68,19 +85,48 @@
         const chatLog = document.getElementById('chat-log');
         const chatHistoryContent = document.getElementById('chat-history-content');
         const loginButton = document.getElementById('login-button');
+        const signupButton = document.getElementById('signup-button');
         const logoutButton = document.getElementById('logout-button');
         const usernameSpan = document.getElementById('username');
         const useridSpan = document.getElementById('user_id');
         const loginPopup = document.getElementById('login-popup');
         const popupLoginButton = document.getElementById('popup-login');
         const popupCancelButton = document.getElementById('popup-cancel');
-        var chat_history = "";
+        const welcomeContainer = document.getElementById('welcome-container');
+        const userInfoIcon = document.getElementById('user-info-icon');
+        const logoutDropdown = document.getElementById('logout-dropdown');
+        const chatHistory = document.getElementById('chat-history');
+        const chatHistoryToggle = document.getElementById('chat-history-expand-collapse-button');
+        var ischatHistoryToggle =false;
+        let chat_history = "";
 
         loginButton.addEventListener('click', login);
         logoutButton.addEventListener('click', logout);
         popupLoginButton.addEventListener('click', login);
         popupCancelButton.addEventListener('click', () => {
-            loginPopup.style.display = 'none';
+            loginPopup.classList.add('hidden');
+        });
+
+        userInfoIcon.addEventListener('click', () => {
+            logoutDropdown.classList.toggle('hidden');
+        });
+
+        window.addEventListener('click', (event) => {
+            if (!userInfoIcon.contains(event.target) && !logoutDropdown.contains(event.target)) {
+                logoutDropdown.classList.add('hidden');
+            }
+        });
+
+        chatHistoryToggle.addEventListener('click', () => {
+            chatHistory.classList.toggle('w-0');
+            chatHistory.classList.toggle('w-full');
+            chatHistory.classList.toggle('md:w-96');
+            if(!ischatHistoryToggle){
+                ischatHistoryToggle = true;
+            }else{
+                ischatHistoryToggle = false;
+            };
+           console.log(ischatHistoryToggle);
         });
 
         async function login() {
@@ -98,14 +144,17 @@
         function updateUI(account) {
             if (account) {
                 usernameSpan.textContent = account.name;
-                useridSpan.textContent = account.id
-                loginButton.style.display = 'none';
-                logoutButton.style.display = 'inline-block';
+                useridSpan.textContent = account.id;
+                signupButton.classList.add('hidden');
+                loginButton.classList.add('hidden');
+                logoutButton.classList.remove('hidden');
+                userInfoIcon.classList.remove('hidden');
                 loadChatHistory();
             } else {
                 usernameSpan.textContent = '';
-                loginButton.style.display = 'inline-block';
-                logoutButton.style.display = 'none';
+                signupButton.classList.remove('hidden');
+                loginButton.classList.remove('hidden');
+                logoutButton.classList.add('hidden');
                 chatHistoryContent.innerHTML = '';
             }
         }
@@ -120,7 +169,6 @@
                 if (response.ok) {
                     const userInfo = await response.json();
                     updateUI({ name: userInfo.user_name, id: userInfo.user_id });
-                    console.log(userInfo.user_name)
                 } else {
                     updateUI(null);
                 }
@@ -148,10 +196,11 @@
             chatHistoryContent.innerHTML = '';
             history.forEach(item => {
                 const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
+                historyItem.className = 'mb-2';
                 historyItem.innerHTML = `
-                    <div class="timestamp">${new Date(item.timestamp).toLocaleString()}</div>
-                    <div>${item.sender}: ${item.message}</div>
+                    <div class="text-xs text-gray-500">${new Date(item.timestamp).toLocaleString()}</div>
+                    <div class="font-semibold">${item.sender}:</div>
+                    <div>${item.message}</div>
                 `;
                 chatHistoryContent.appendChild(historyItem);
             });
@@ -173,11 +222,30 @@
 
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
+
+            // Change the position of the chat-form after message submission
+            document.getElementById('chat-form').classList.add('move-down'); // Trigger the animation
+
+            document.getElementById('welcome-message').classList.add('hidden');
+            document.getElementById('chatbot-icon').classList.add('hidden');
             const message = document.getElementById('message').value;
+            
+            // Change the position of the chat-form after message submission
+            document.getElementById('chat-form').style.position = 'relative';
+            document.getElementById('chat-form').style.left = 'auto';
+            document.getElementById('chat-form').style.top = 'auto';
+            document.getElementById('chat-form').style.transform = 'translateY(-30px)';
+
+            if (!welcomeContainer.classList.contains('hidden')) {
+                welcomeContainer.classList.add('hidden');
+            }
+
             const userMessage = `
-                <div class="message-container user-message">
-                    <div class="message-content">${message}</div>
-                    <i id="user_icon" class="icon fas fa-user"></i>
+                <div class="flex justify-end mb-4 items-end">
+                    <div id="user-message" class="bg-green-500 text-white rounded-xl py-2 px-4 max-w-xs lg:max-w-md">
+                        ${message}
+                    </div>
+                    <img id="user-chat-head" src="/static/img/user-icon.png" alt="User" class="rounded-full">
                 </div>`;
             chatLog.innerHTML = userMessage + chatLog.innerHTML;
             form.reset();
@@ -189,12 +257,11 @@
                 history: chat_history
             };
 
-            // Display bouncing dots
             const dotsMessage = `
-                <div class="message-container ai-response">
-                    <i class="icon fas fa-robot"></i>
-                    <div class="message-content">
-                        <div class="dots-container">
+                <div class="flex mb-4 items-end">
+                    <img id="bot-icon" src="/static/img/bot-icon.png" alt="Bot" class="rounded-full">
+                    <div id="ai-response" class="rounded-xl py-2 px-4">
+                        <div class="dot-container">
                             <div class="dot"></div>
                             <div class="dot"></div>
                             <div class="dot"></div>
@@ -213,10 +280,8 @@
                 });
 
                 if (response.status === 401) {
-                    loginPopup.style.display = 'block';
-                    // Remove bouncing dots
-                    const chatEntries = chatLog.innerHTML.split(dotsMessage);
-                    chatLog.innerHTML = chatEntries[0] + chatEntries[1];
+                    loginPopup.classList.remove('hidden');
+                    chatLog.innerHTML = chatLog.innerHTML.replace(dotsMessage, '');
                     return;
                 }
 
@@ -224,34 +289,33 @@
 
                 chat_history = result.history;
 
-                // Remove bouncing dots
-                const chatEntries = chatLog.innerHTML.split(dotsMessage);
-                chatLog.innerHTML = chatEntries[0] + chatEntries[1];
+                chatLog.innerHTML = chatLog.innerHTML.replace(dotsMessage, '');
 
                 const aiResponse = `
-                    <div class="message-container ai-response">
-                        <i class="icon fas fa-robot"></i>
-                        <div class="message-content">
+                    <div class="flex mb-4 items-end">
+                        <img id="bot-icon" src="/static/img/bot-icon.png" alt="Bot" class="rounded-full">
+                        <div id="ai-response" class="text-white rounded-xl py-2 px-4 max-w-xs lg:max-w-md flex-grow">
                             ${result.message}
-                            <button class="copy-button" onclick="copyToClipboard(this)">
-                                <i class="fas fa-copy"></i>
-                            </button>
                         </div>
-                    </div>`;
+                        <button id="copy-button" class="ml-2 text-white-500 hover:text-green-600 self-center" onclick="copyToClipboard(this)">
+                            <i id="copy-button-icon" class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    `;
                 chatLog.innerHTML = aiResponse + chatLog.innerHTML;
 
                 await saveChatHistory(result.message, 'Bot');
                 loadChatHistory();
             } catch (error) {
                 console.error('Error:', error);
-                // Remove bouncing dots
-                const chatEntries = chatLog.innerHTML.split(dotsMessage);
-                chatLog.innerHTML = chatEntries[0] + chatEntries[1];
+                chatLog.innerHTML = chatLog.innerHTML.replace(dotsMessage, '');
 
                 const errorMessage = `
-                    <div class="message-container ai-response">
-                        <i class="icon fas fa-exclamation-triangle"></i>
-                        <div class="message-content">An error occurred. Please try again.</div>
+                    <div class="flex mb-4 items-end">
+                        <img id="bot-icon" src="/static/img/bot-icon.png" alt="Bot" class="rounded-full">
+                        <div class="bg-red-100 border border-red-400 text-red-700 rounded-xl py-2 px-4">
+                            An error occurred. Please try again.
+                        </div>
                     </div>`;
                 chatLog.innerHTML = errorMessage + chatLog.innerHTML;
             }
@@ -268,6 +332,44 @@
                 console.error('Failed to copy: ', err);
             });
         }
+
+        document.getElementById('message').addEventListener('input', function () {
+            const textarea = this;
+            const maxHeight = 50; // Maximum height of the input box (in px, set to desired value)
+            const minHeight = 40;  // Minimum height of the input box (in px, set to desired value)
+
+            // Reset the height to auto to shrink before expanding
+            textarea.style.height = 'auto';
+
+            // Set the height to the scroll height but make sure it doesn't exceed the maxHeight
+            textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
+            
+            // If the height exceeds the maxHeight, make it scrollable
+            if (textarea.scrollHeight > maxHeight) {
+                textarea.style.overflowY = 'auto'; // Enable scrolling
+            } else {
+                textarea.style.overflowY = 'hidden'; // Disable scrolling
+            }
+        });
+
+        // Ensure the textarea starts at the correct height on page load
+        window.addEventListener('load', () => {
+            const textarea = document.getElementById('message');
+            textarea.style.height = textarea.scrollHeight + 'px';
+        });
+        // Event listener for Enter key press to submit the message
+        document.getElementById('message').addEventListener('keydown', function(event) {
+            const textarea = this;
+
+            // Check if the Enter key (key code 13) is pressed
+            if (event.key === 'Enter' && !event.shiftKey) {
+                // Prevent default action (creating a new line)
+                event.preventDefault();
+
+                // Submit the form when Enter is pressed
+                document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+            }
+        });
     </script>
 </body>
 </html>
