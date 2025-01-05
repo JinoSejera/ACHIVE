@@ -133,6 +133,12 @@ async def chat_alchive(chat_request: ChatRequest, user: dict = Depends(get_curre
     except Exception as e:
         raise ServiceException(e)
 
+@router.post("/ingest")
+async def upload_files_to_acs():
+    try:
+        await agent.upload_file()
+    except Exception as e:
+        raise ServiceException(e)
 @router.get("/chatbot", response_class=HTMLResponse)
 async def chatbot_page(request: Request):
     return templates.TemplateResponse("chatbot.html", {

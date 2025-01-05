@@ -18,6 +18,7 @@ from alchive.functions import ExtractPDF
 from alchive.utils import Prompts, Agent_Response
 from alchive.agent.setup import Setup
 from alchive.AlchivePlugins.MemoryPlugin.memory import MemoryPlugin
+from alchive.functions import StorageAccount
 
 import os
 
@@ -44,6 +45,7 @@ class Alchive:
             cls._memory_base:AzureCognitiveSearchMemoryStore = None
             cls._memory:SemanticTextMemory = None
             cls._embedding_service = None
+            cls._storage_account:StorageAccount = None
         return cls._instance
     
     def initialize_kernel(self)->str:
@@ -60,11 +62,13 @@ class Alchive:
             settings = Setup.get_settings_from_service_id(self._kernel,self._chat_service_id) # getting execution setting of a service using service id.
             if not self._agent_v2:
                 settings.function_choice_behavior = FunctionChoiceBehavior.Auto() # setting up Fucntion calling behavior of the agent
+            self._initialize_storage_account() #initialize storage account
             self._initialize_memory_base() # initialize memory base
             self._kernel.add_plugin(parent_directory=os.path.normpath(os.path.join(self._current_dir, '..', self._plugin)), plugin_name="ChatPlugin")
-            self._kernel.add_plugin(MemoryPlugin(memory=self._memory), plugin_name="Memory") # adding a Native function plugin to the Kernel that retrieve memory to the memory base
+            self._kernel.add_plugin(MemoryPlugin(memory=self._memory , storage_account=self._storage_account), plugin_name="Memory") # adding a Native function plugin to the Kernel that retrieve memory to the memory base
             # self._kernel.add_plugin(TextMemoryPlugin(memory=self._memory), plugin_name="memory")
             id = self._create_agent(settings) # creating agent
+            
             return id 
     def _create_agent(self,settings)->str:
         """Create instance of ChatCompletionAgent.
@@ -104,6 +108,11 @@ class Alchive:
             self._memory = SemanticTextMemory(storage=self._memory_base,
                                               embeddings_generator=self._embedding_service)
 
+    def _initialize_storage_account(self)-> None:
+        if not self._storage_account:
+            self._storage_account = StorageAccount(name=os.getenv("STORAGE_ACCOUNT_NAME"),
+                                                   container_name=os.getenv("CONTAINER_NAME"))
+    
     async def invoke_agent_alchive(self, input:str, chat:ChatHistory)->Agent_Response:
         """Invoke the agent with the user input.
         
@@ -124,24 +133,31 @@ class Alchive:
         else:
             response, history = await self._agent.invoke_v2(input,chat)
             return Agent_Response(response,history)
-    async def upload_file(self, file_path: str)->None:
+    async def upload_file(self)->None:
         """Upload the file and index to memory base
-
-        Args:
-            file_path: (str) path of the file
         """
         memory = self._memory
+        files = self._storage_account.get_list_of_blobs()
+        
+        for file in files:
 
-        pdf_pages = ExtractPDF.extract_pages(file_path=file_path)
-
-        for i, page in enumerate(pdf_pages, start=1):
-            source = {}
-            source["source"] = file_path
-            await memory.save_information(collection="genbio",
-                                    text=page,
-                                    id=f"{i}-genbio",
-                                    additional_metadata=str(source))
-            print(f"page {i} has been uploaded.")
+            
+            metadata = {}
+            metadata['file_name'] = file.name
+            metadata['module_name'] = self._storage_account.get_file_metadata(metadata_name="module_name", blob=file)
+            
+            pdf_content_bytes = self._storage_account.get_download_blob(file)
+            pdf_pages = ExtractPDF.extract_pages(pdf_bytes=pdf_content_bytes)
+            
+            for i, page in enumerate(pdf_pages, start=1):
+                if page:
+                    await memory.save_information(
+                                                collection="genbiokb",
+                                                text=page,
+                                                id=f"{i}-{file.name}",
+                                                additional_metadata=str(metadata)
+                                                )
+                    print(f"page {i} has been uploaded.")
 
     def add_capabilities(self, plugins: list[KernelPlugin] | dict[str, KernelPlugin | object])->dict[str, KernelPlugin]:
         """Add list/dictionary of plugins to add in the kernel
