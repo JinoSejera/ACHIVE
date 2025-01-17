@@ -10,7 +10,7 @@
     <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
     <link rel="stylesheet" href="/static/styles.css">
     <style>
-
+       
     </style>
 </head>
 <body class="bg-green-50 font-poppins text-gray-800">
@@ -36,12 +36,13 @@
         </div>
 
         <div id="chat-main" class="flex-grow flex flex-col p-4 transition-all duration-300 ease-in-out">
-            <div id="welcome-container" class="flex flex-col items-center justify-center h-screen"> 
-                <img id="chatbot-icon" src="/static/img/bot-icon.png" alt="chatbot header" class="rounded-full"> 
-                <div id="welcome-message" class="text-3xl font-semibold text-white mt-4"> 
-                    Hello! Welcome to Alchive, What can I help? 
-                </div> 
+        <div id="welcome-container" class="flex flex-col items-center justify-center h-screen"> 
+            <img id="chatbot-icon" src="/static/img/bot-icon.png" alt="chatbot header" class="rounded-full">
+                <div id="welcome-message" class="text-3xl font-semibold text-center mt-4 break-words sm:text-2xl md:text-xl">
+                    <span class="text-transparent bg-clip-text text-white">Hello! Welcome to</span> <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Alchive</span><span class="text-transparent bg-clip-text text-white">, What can I help?</span>
+                </div>
             </div>
+        
             <div id="chat-log" class="flex-grow overflow-y-auto mb-4 flex flex-col-reverse gap-4"></div>
 
             <form id="chat-form" class="flex mt-4">
@@ -180,7 +181,7 @@
 
         async function loadChatHistory() {
             try {
-                const response = await fetch('/api/v1/load_chat_history');
+                const response = await fetch('/api/v1/load_chat_history_v2');
                 if (response.ok) {
                     const data = await response.json();
                     displayChatHistory(data.chat_history);
@@ -208,7 +209,7 @@
 
         async function saveChatHistory(message, sender) {
             try {
-                await fetch('/api/v1/save_chat_history', {
+                await fetch('/api/v1/save_chat_history_v2', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message, sender })

@@ -79,3 +79,27 @@ class StorageAccount:
         metadata_value = blob_properties.metadata.get(metadata_name)
         
         return metadata_value
+    
+    def is_blob_exist(self, blob_name:str) -> bool:
+        """Check if given blob name is exist in the storage account
+
+        Args:
+            blob_name (str): blob name
+
+        Returns:
+            bool: return True or False if blob name is exist or not
+        """
+        container_client = self._blob_service_client.get_container_client("history")
+        return container_client.exists()
+    
+    
+    def download_blob(self, blob_name: str):
+        container_client = self._blob_service_client.get_container_client("history")
+        blob_client = container_client.get_blob_client(blob_name)
+        return blob_client.download_blob().readall()
+    
+    def save_to_file(self, file_name:str, content):
+        container_client = self._blob_service_client.get_container_client("history")
+        blob_client = container_client.get_blob_client(file_name)
+        
+        blob_client.upload_blob(content,overwrite=True)
