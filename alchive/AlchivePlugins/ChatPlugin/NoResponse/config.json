@@ -1,6 +1,6 @@
 {
     "schema": 1,
-    "description": "generate set of questions about user input",
+    "description": "Response to user query about its query that it is non Biology related.",
     "execution_settings": {
       "default": {
         "max_tokens": 200,
@@ -12,9 +12,9 @@
     },
     "input_variables": [
         {
-            "name":"user_input",
-            "description": "user input/question.",
+            "name":"user_query",
+            "description": "user query.",
             "default":""
         }
     ]
-  }
+}

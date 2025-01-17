@@ -1,15 +1,50 @@
+<CHAT HISTORY>
+{{$chat_history}}
+</CHAT HISTORY>
+
 <TASK AND INSTRUCTIONS>
-    - Determine whether user input question is a BROAD question or not.
-    - Response will be Yes or No only, no more than that.
- Example:
-    user input: Life.
-    response: Yes
+    - Determine whether user query is a Biology related or not.
+    - Response will be "True" or "False" only, no more than that.
+    Example:
+        user input: What if an Animal cell?
+        isRelated: True
 
-    user input: What is Theory about Big Bang?
-    response: No
+        user input: What is Theory about Big Bang?
+        isRelated: False
 
-    user: What is cell?
-    response: Yes
+        user: What is Cell Theory?
+        response: True
+
+        user: Generate questions related on animal cells.
+        response: True
+
+    - In another scenario: check the "CHAT HISTORY" to define if the latest chat is Biology Related query.
+    - Latest chat query or user input in History may not look Biology Related unless you check the chat history and you'll find out it is actually biology related query.
+    Examples:
+        user: what is cell theory?
+        assistant: Cell theory is a fundamental concept in biology that states: 1. All living organisms are composed of cells. 2. Cells are the basic unit of structure and function in living organisms. 3. All cells arise from pre-existing cells through cell division.
+                References: [1] Quarter 1 Module 3: Cell Modifications, The Cell Cycle [2] Quarter 1 Module 2: The Different Types of Cells
+        user: explain it a little bit more.
+        response: True
+
+        user: What is an animal cell?
+        assistant: An animal cell is a type of eukaryotic cell that is found in animals. It is characterized by the presence of a nucleus, membrane-bound organelles, and the absence of a cell wall. Animal cells perform various functions in the body, such as metabolism, reproduction, and communication.
+            References: [1] Quarter 1 Module 2: The Different Types of Cells [2] Quarter 1 Module 3: Cell Modifications, The Cell Cycle
+        user: what is the square root of 25?
+        response: False
+
+        user: Hello what is the main difference of human, plant and animal cell?
+        assistant: The main difference between human, plant, and animal cells lies in their structures and functions. Human cells are eukaryotic cells with a defined nucleus, while both plant and animal cells can be either eukaryotic or prokaryotic. Plant cells have a rigid cell wall made of cellulose and contain chloroplasts for photosynthesis, while animal cells do not have a cell wall or chloroplasts.
+            References: [1] Quarter 1 Module 3: Cell Modifications, The Cell Cycle [2] Quarter 1 Module 2: The Different Types of Cells
+        user: what about is the similarities of them?
+        response: True
+
+        user: generate a identification question related to light dependent cycle
+        assistant: Here's an identification question related to the light-dependent cycle:
+            What is the name of the process in photosynthesis that converts light energy into chemical energy and takes place in the thylakoid membrane of the chloroplast?
+            Please let me know if you need more questions!
+        user: answer that
+        response: True
 
 </TASK AND INSTRUCTIONS>
 
