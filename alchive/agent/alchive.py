@@ -179,7 +179,7 @@ class Alchive:
             for i, page in enumerate(pdf_pages, start=1):
                 if page:
                     await memory.save_information(
-                                                collection="genbiokb",
+                                                collection=os.getenv("INDEX_NAME"),
                                                 text=page,
                                                 id=f"{i}-{file.name}",
                                                 additional_metadata=str(metadata)
