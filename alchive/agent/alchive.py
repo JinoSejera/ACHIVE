@@ -13,13 +13,17 @@ from semantic_kernel.connectors.ai.open_ai import AzureChatPromptExecutionSettin
 from semantic_kernel.core_plugins import ConversationSummaryPlugin
 from semantic_kernel.prompt_template import InputVariable, PromptTemplateConfig
 from semantic_kernel.functions import KernelArguments
+from semantic_kernel.contents.chat_message_content import ChatMessageContent 
+from semantic_kernel.contents.utils.author_role import AuthorRole
 
 from alchive.functions import ExtractPDF
 from alchive.utils import Prompts, Agent_Response
 from alchive.agent.setup import Setup
 from alchive.AlchivePlugins.MemoryPlugin.memory import MemoryPlugin
+from alchive.functions import StorageAccount
 
 import os
+import json
 
 agent_token_response = 1000
 
@@ -39,11 +43,14 @@ class Alchive:
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super(Alchive, cls).__new__(cls, *args, **kwargs)
-            cls._kernel:Kernel = None
+            cls._agent_kernel:Kernel = None
+            cls._initiator_kernel:Kernel = None
             cls._agent = None
+            cls._initiator = None
             cls._memory_base:AzureCognitiveSearchMemoryStore = None
             cls._memory:SemanticTextMemory = None
             cls._embedding_service = None
+            cls._storage_account:StorageAccount = None
         return cls._instance
     
     def initialize_kernel(self)->str:
@@ -52,20 +59,28 @@ class Alchive:
         Returns:
             Agent id
         """
-        if not self._kernel:
-            self._kernel = Setup.create_kernel() # crete an instance of Kernel object
+        if not self._agent_kernel:
+            self._agent_kernel = Setup.create_kernel() # crete an instance of Kernel object
             self._embedding_service = AzureTextEmbedding(service_id=self._embedding_service_id) # create embedding service
-            self._kernel.add_service(service=AzureChatCompletion(service_id=self._chat_service_id)) # add chat completion service to the kernel
-            self._kernel.add_service(self._embedding_service) # add text embedding service to the kernel
-            settings = Setup.get_settings_from_service_id(self._kernel,self._chat_service_id) # getting execution setting of a service using service id.
+            self._agent_kernel.add_service(service=AzureChatCompletion(service_id=self._chat_service_id)) # add chat completion service to the kernel
+            self._agent_kernel.add_service(self._embedding_service) # add text embedding service to the kernel
+            settings = Setup.get_settings_from_service_id(self._agent_kernel,self._chat_service_id) # getting execution setting of a service using service id.
             if not self._agent_v2:
                 settings.function_choice_behavior = FunctionChoiceBehavior.Auto() # setting up Fucntion calling behavior of the agent
+            self._initialize_storage_account() #initialize storage account
             self._initialize_memory_base() # initialize memory base
-            self._kernel.add_plugin(parent_directory=os.path.normpath(os.path.join(self._current_dir, '..', self._plugin)), plugin_name="ChatPlugin")
-            self._kernel.add_plugin(MemoryPlugin(memory=self._memory), plugin_name="Memory") # adding a Native function plugin to the Kernel that retrieve memory to the memory base
+            self._agent_kernel.add_plugin(MemoryPlugin(memory=self._memory , storage_account=self._storage_account), plugin_name="Memory") # adding a Native function plugin to the Kernel that retrieve memory to the memory base
             # self._kernel.add_plugin(TextMemoryPlugin(memory=self._memory), plugin_name="memory")
-            id = self._create_agent(settings) # creating agent
-            return id 
+            agent_id = self._create_agent(settings) # creating agent
+
+        if not self._initiator_kernel:
+            self._initiator_kernel = Setup.create_kernel()
+            self._initiator_kernel.add_service(service=AzureChatCompletion(service_id=self._chat_service_id))
+            if not self._initiator:
+                self._initiator = self._initiator_kernel.add_plugin(parent_directory=os.path.normpath(os.path.join(self._current_dir, '..', self._plugin)), plugin_name="ChatPlugin")
+                
+        return agent_id
+    
     def _create_agent(self,settings)->str:
         """Create instance of ChatCompletionAgent.
             
@@ -73,20 +88,20 @@ class Alchive:
             settings (PromptExecutionSettings|AzureChatPromptExecutionSettings): The execution settings for the agent.
         """
         if not self._agent:
-            if not self._kernel:
+            if not self._agent_kernel:
                 self.initialize_kernel()
             # Instance of ChatCompletion object
             if not self._agent_v2:
                 self._agent = ChatCompletionAgent(service_id=self._chat_service_id,
-                                                kernel=self._kernel,
+                                                kernel=self._agent_kernel,
                                                 instructions=Prompts.AGENT_PROMPTS,
                                                 name=self._chat_service_id,
                                                 execution_settings=settings
                                                 )
                 return self._agent.id
             else:
-                self._agent =ChatCompletionAgentV2(service_id=self._chat_service_id,
-                                                   kernel=self._kernel,
+                self._agent = ChatCompletionAgentV2(service_id=self._chat_service_id,
+                                                   kernel=self._agent_kernel,
                                                    instructions=Prompts.AGENT_V2_PROMPTS,
                                                    settings=settings)
             
@@ -104,6 +119,11 @@ class Alchive:
             self._memory = SemanticTextMemory(storage=self._memory_base,
                                               embeddings_generator=self._embedding_service)
 
+    def _initialize_storage_account(self)-> None:
+        if not self._storage_account:
+            self._storage_account = StorageAccount(name=os.getenv("STORAGE_ACCOUNT_NAME"),
+                                                   container_name=os.getenv("CONTAINER_NAME"))
+    
     async def invoke_agent_alchive(self, input:str, chat:ChatHistory)->Agent_Response:
         """Invoke the agent with the user input.
         
@@ -116,32 +136,55 @@ class Alchive:
         """
         chat.add_user_message(input)
         if not self._agent_v2:
+            string_to_bool = {"True" : True, "False": False }
+            is_question_biology_related = self._initiator["QuestionChecker"]
+            response_to_non_bio_query = self._initiator["NoResponse"]
             
-            # invoke the agent
-            async for content in self._agent.invoke(chat):
-                #print(f"# {content.role} - {content.name or '*'}: '{content.content}'")
+            is_related = await self._initiator_kernel.invoke(is_question_biology_related,
+                                                             KernelArguments(user_input = input, chat_history = chat))
+            print(f"Is question Related to Biology? {is_related}")
+            if not string_to_bool[str(is_related)]:
+                response = await self._initiator_kernel.invoke(response_to_non_bio_query,
+                                                               KernelArguments(user_query = input))
+                print(str(response))
+                content = ChatMessageContent(
+                    role=AuthorRole.ASSISTANT,
+                    content=str(response)
+                )
                 return Agent_Response(content,chat)
+            else:
+                # invoke the agent
+                async for content in self._agent.invoke(chat):
+                    #print(f"# {content.role} - {content.name or '*'}: '{content.content}'")
+                    return Agent_Response(content,chat)
         else:
             response, history = await self._agent.invoke_v2(input,chat)
             return Agent_Response(response,history)
-    async def upload_file(self, file_path: str)->None:
+    async def upload_file(self)->None:
         """Upload the file and index to memory base
-
-        Args:
-            file_path: (str) path of the file
         """
         memory = self._memory
+        files = self._storage_account.get_list_of_blobs()
+        
+        for file in files:
 
-        pdf_pages = ExtractPDF.extract_pages(file_path=file_path)
-
-        for i, page in enumerate(pdf_pages, start=1):
-            source = {}
-            source["source"] = file_path
-            await memory.save_information(collection="genbio",
-                                    text=page,
-                                    id=f"{i}-genbio",
-                                    additional_metadata=str(source))
-            print(f"page {i} has been uploaded.")
+            
+            metadata = {}
+            metadata['file_name'] = file.name
+            metadata['module_name'] = self._storage_account.get_file_metadata(metadata_name="module_name", blob=file)
+            
+            pdf_content_bytes = self._storage_account.get_download_blob(file)
+            pdf_pages = ExtractPDF.extract_pages(pdf_bytes=pdf_content_bytes)
+            
+            for i, page in enumerate(pdf_pages, start=1):
+                if page:
+                    await memory.save_information(
+                                                collection="genbiokb",
+                                                text=page,
+                                                id=f"{i}-{file.name}",
+                                                additional_metadata=str(metadata)
+                                                )
+                    print(f"page {i} has been uploaded.")
 
     def add_capabilities(self, plugins: list[KernelPlugin] | dict[str, KernelPlugin | object])->dict[str, KernelPlugin]:
         """Add list/dictionary of plugins to add in the kernel
@@ -151,9 +194,32 @@ class Alchive:
         Returns:
             (dict[str, KernelPlugin]) - Dictionary of all plugins in the kernel
         """
-        self._kernel.add_plugins(plugins)
-        return self._kernel.plugins
-
+        self._agent_kernel.add_plugins(plugins)
+        return self._agent_kernel.plugins
+    
+    def save_history_to_storage(self, file_name:str, chat: dict):
+        
+        if self._storage_account.is_blob_exist(file_name):
+            existing_history = json.loads(self._storage_account.download_blob(file_name))
+        else:
+            existing_history = []
+        
+        existing_history.append(chat)
+        
+        try:
+            self._storage_account.save_to_file(file_name,
+                                               json.dumps(existing_history)
+                                               )
+        except Exception as e:
+            print(e)
+    def download_history_from_storage(self, file_name):
+        isExist = self._storage_account.is_blob_exist(file_name)
+        print(isExist)
+        if isExist:
+            return json.loads(self._storage_account.download_blob(file_name))
+        else:
+            return []
+            
 
 class ChatCompletionAgentV2:
     def __init__(self,

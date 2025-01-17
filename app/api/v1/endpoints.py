@@ -133,6 +133,13 @@ async def chat_alchive(chat_request: ChatRequest, user: dict = Depends(get_curre
     except Exception as e:
         raise ServiceException(e)
 
+@router.post("/ingest")
+async def upload_files_to_acs():
+    try:
+        await agent.upload_file()
+    except Exception as e:
+        raise ServiceException(e)
+    
 @router.get("/chatbot", response_class=HTMLResponse)
 async def chatbot_page(request: Request):
     return templates.TemplateResponse("chatbot.html", {
@@ -175,6 +182,26 @@ async def save_chat_history(request: Request):
         logging.error(f"Error saving chat history: {str(e)}")
         raise HTTPException(status_code=500, detail="Error saving chat history")
 
+@router.post("/save_chat_history_v2")
+async def save_chat_history_v2(request: Request):
+    user = await get_current_user(request)
+    data = await request.json()
+    
+    file_name = f"{user['id']}.json"
+    
+    try:     
+        new_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "message": data["message"],
+            "sender": data["sender"]
+        }
+        agent.save_history_to_storage(file_name,new_entry)
+        logging.info("Message successfully added in the history.")
+        return {"status": "success"}
+    except Exception as e:
+        logging.error(f"Error saving chat history: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error saving chat history")
+    
 @router.get("/load_chat_history")
 async def load_chat_history(request: Request):
     user = await get_current_user(request)
@@ -189,6 +216,18 @@ async def load_chat_history(request: Request):
             return {"chat_history": chat_history}
         else:
             return {"chat_history": []}
+    except Exception as e:
+        logging.error(f"Error loading chat history: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error loading chat history")
+    
+@router.get("/load_chat_history_v2")
+async def load_chat_history_v2(request: Request):
+    user = await get_current_user(request)
+    file_name = f"{user['id']}.json"
+    
+    try:
+        chat_history = agent.download_history_from_storage(file_name)
+        return {"chat_history": chat_history}
     except Exception as e:
         logging.error(f"Error loading chat history: {str(e)}")
         raise HTTPException(status_code=500, detail="Error loading chat history")

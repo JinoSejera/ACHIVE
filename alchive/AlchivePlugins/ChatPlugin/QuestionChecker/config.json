@@ -1,6 +1,6 @@
 {
     "schema": 1,
-    "description": "Check whether user input question is a broad question or not.",
+    "description": "Check whether user query is Biology Related or not.",
     "execution_settings": {
       "default": {
         "max_tokens": 10,
@@ -13,8 +13,13 @@
     "input_variables": [
         {
             "name":"user_input",
-            "description": "user input question.",
+            "description": "user query.",
             "default":""
-        }
+        },
+        {
+          "name":"chat_history",
+          "description": "chat history",
+          "default":""
+      }
     ]
   }
