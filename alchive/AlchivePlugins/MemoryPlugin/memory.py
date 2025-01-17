@@ -4,6 +4,7 @@ from semantic_kernel.memory.semantic_text_memory_base import SemanticTextMemoryB
 from typing import Annotated
 import json
 import logging
+import os
 
 from alchive.functions import StorageAccount
 logger: logging.Logger = logging.getLogger(__name__)
@@ -12,7 +13,7 @@ class MemoryPlugin:
     """A Recall Plugin used to recall knowledge"""
 
     RELEVANCE_SCORE = 0.6
-    INDEX_NAME = "genbiokb"
+    INDEX_NAME = os.getenv("INDEX_NAME")
     LIMIT = 3
     def __init__(self, memory:SemanticTextMemoryBase, storage_account:StorageAccount):
         self._storage_account = storage_account
