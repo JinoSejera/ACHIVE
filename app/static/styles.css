@@ -1,3 +1,7 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+ 
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
@@ -20,7 +24,7 @@ body {
  margin: 0;
  padding: 0;
  color: var(--text-color);
- background-image: url('/static/img/background_1.jpg');
+ background-image: url('/static/img/background_4.jpg');
  background-repeat: no-repeat;
  background-size:cover;
  overflow: scroll;
@@ -29,9 +33,10 @@ body::-webkit-scrollbar {
   display: none; /* This hides the scrollbar */
 }
 #header {
-  background-color: #00532A;
+  background-color: #05910ea1;
+  border: 2px solid white;
 }
-#message {
+#message {  
   background-color: #428E20;
   color: white;
   padding-left: 15px;  /* Add 15px left margin to the text inside the input box */
@@ -40,7 +45,7 @@ form button {
   background-color: #5E3F31;
   border: 3px solid white;
 }
-#login-button {
+#login-button {   
   background-color: #428E20;
   border: 2px solid white;
 }
@@ -123,6 +128,13 @@ display: none; /* This hides the scrollbar */
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 20px;
+}
+#alchive-gradient
+{
+  background: linear-gradient(to right, #addfad, #32cd32); 
+  -webkit-background-clip: text; 
+  -webkit-text-fill-color: transparent;
+
 }
 #chat-form {
   position: absolute;

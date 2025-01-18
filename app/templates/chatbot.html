@@ -10,7 +10,7 @@
     <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
     <link rel="stylesheet" href="/static/styles.css">
     <style>
-       
+
     </style>
 </head>
 <body class="bg-green-50 font-poppins text-gray-800">
@@ -36,13 +36,12 @@
         </div>
 
         <div id="chat-main" class="flex-grow flex flex-col p-4 transition-all duration-300 ease-in-out">
-        <div id="welcome-container" class="flex flex-col items-center justify-center h-screen"> 
-            <img id="chatbot-icon" src="/static/img/bot-icon.png" alt="chatbot header" class="rounded-full">
-                <div id="welcome-message" class="text-3xl font-semibold text-center mt-4 break-words sm:text-2xl md:text-xl">
-                    <span class="text-transparent bg-clip-text text-white">Hello! Welcome to</span> <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Alchive</span><span class="text-transparent bg-clip-text text-white">, What can I help?</span>
-                </div>
+            <div id="welcome-container" class="flex flex-col items-center justify-center h-screen"> 
+                <img id="chatbot-icon" src="/static/img/bot-icon.png" alt="chatbot header" class="rounded-full"> 
+                <div id="welcome-message" class="text-2xl font-bold mt-4"> 
+                   <span class="text-transparent bg-clip-text text-white">Hello! Welcome to</span> <span id="alchive-gradient">Alchive</span><span  class="text-transparent bg-clip-text text-white">, What can I help?</span>
+                </div> 
             </div>
-        
             <div id="chat-log" class="flex-grow overflow-y-auto mb-4 flex flex-col-reverse gap-4"></div>
 
             <form id="chat-form" class="flex mt-4">
@@ -374,4 +373,3 @@
     </script>
 </body>
 </html>
-
