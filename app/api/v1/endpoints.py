@@ -33,7 +33,7 @@ AZURE_CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
 AZURE_CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
 AZURE_TENANT_ID = os.getenv("AZURE_TENANT_ID")
 AUTHORITY = f"https://login.microsoftonline.com/{AZURE_TENANT_ID}"
-REDIRECT_URI = "http://localhost:8000/api/v1/auth/callback"
+REDIRECT_URI = os.getenv("REDIRECT_URI")
 SCOPE = ["User.Read"]
 
 msal_app = ConfidentialClientApplication(
