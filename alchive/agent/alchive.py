@@ -15,6 +15,7 @@ from semantic_kernel.prompt_template import InputVariable, PromptTemplateConfig
 from semantic_kernel.functions import KernelArguments
 from semantic_kernel.contents.chat_message_content import ChatMessageContent 
 from semantic_kernel.contents.utils.author_role import AuthorRole
+from semantic_kernel.utils.logging import setup_logging
 
 from alchive.functions import ExtractPDF
 from alchive.utils import Prompts, Agent_Response
@@ -24,6 +25,7 @@ from alchive.functions import StorageAccount
 
 import os
 import json
+import logging
 
 agent_token_response = 1000
 
@@ -41,6 +43,9 @@ class Alchive:
     _agent_v2 = False
 
     def __new__(cls, *args, **kwargs):
+        setup_logging()
+        logging.getLogger("kernel").setLevel(logging.DEBUG)
+
         if not cls._instance:
             cls._instance = super(Alchive, cls).__new__(cls, *args, **kwargs)
             cls._agent_kernel:Kernel = None
