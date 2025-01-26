@@ -1,213 +1,165 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
- 
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
-}
+  }
 
-.dot { 
-  animation: bounce 1s infinite ease-in-out; 
-}
+  .dot { 
+      animation: bounce 1s infinite ease-in-out; 
+  }
 
-.dot:nth-child(2) { 
-  animation-delay: 0.2s; 
-}
+  .dot:nth-child(2) { 
+      animation-delay: 0.2s; 
+  }
 
-.dot:nth-child(3) { 
-  animation-delay: 0.4s; 
-}
+  .dot:nth-child(3) { 
+      animation-delay: 0.4s
+  }
+  @keyframes rotate {
+      0% {
+          transform: rotate(0deg);
+      }
+      100% {
+          transform: rotate(360deg);
+      }
+  }
 
-body {
- font-family: Arial, sans-serif;
- margin: 0;
- padding: 0;
- color: var(--text-color);
- background-image: url('/static/img/background_4.jpg');
- background-repeat: no-repeat;
- background-size:cover;
- overflow: scroll;
-}
-body::-webkit-scrollbar {
-  display: none; /* This hides the scrollbar */
-}
-#header {
+  @keyframes bounce {
+      0%, 100% {
+          transform: scale(1);
+      }
+      50% {
+          transform: scale(0.6);
+      }
+  }
+
+  .animate-rotate {
+      animation: rotate 2s infinite linear;
+  }
+
+  .dot {
+      animation: bounce 1s infinite ease-in-out;
+  }
+
+  .dot:nth-child(1) {
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -0.6s;
+  }
+
+  .dot:nth-child(2) {
+      top: 50%;
+      left: 100%;
+      transform: translate(-50%, -50%);
+      animation-delay: -0.4s;
+  }
+
+  .dot:nth-child(3) {
+      top: 100%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -0.2s;
+  }
+
+  .dot:nth-child(4) {
+      top: 50%;
+      left: 0;
+      transform: translate(-50%, -50%);
+      animation-delay: 0s;
+  }
+
+  .dot:nth-child(5) {
+      top: 12.5%;
+      left: 87.5%;
+      transform: translate(-50%, -50%);
+      animation-delay: -0.5s;
+  }
+
+  .dot:nth-child(6) {
+      top: 87.5%;
+      left: 12.5%;
+      transform: translate(-50%, -50%);
+      animation-delay: -0.3s;
+  }
+
+  body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: var(--text-color);
+  background-image: url('/static/img/background_4.jpg');
+  background-repeat: no-repeat;
+  background-size:cover;
+  overflow: scroll;
+  }
+
+  #signup-button {
+      background-color: #5E3F31;
+      border: 2px solid white;
+  }
+  #login-button {   
+      background-color: #428E20;
+      border: 2px solid white;
+  }
+  #login-button-mobile {
+      background-color: #428E20;
+      border: 2px solid white;
+  }
+  #signup-button-mobile {
+      background-color: #5E3F31;
+      border: 2px solid white;
+  }
+  #mobile-menu {
+      background-color: #259c155e;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  #header {
   background-color: #05910ea1;
   border: 2px solid white;
-}
-#message {  
-  background-color: #428E20;
-  color: white;
-  padding-left: 15px;  /* Add 15px left margin to the text inside the input box */
-}
-form button {
-  background-color: #5E3F31;
-  border: 3px solid white;
-}
-#login-button {   
-  background-color: #428E20;
-  border: 2px solid white;
-}
-#signup-button {
-  background-color: #5E3F31;
-  border: 2px solid white;
-}
-#logout-button {
-  border: 2px solid white;
-}
-html, body {
-  overflow: hidden; /* Prevents the entire page from scrolling */
-  height: 100%; /* Ensures the body fills the whole screen */
-}
-#ai-response {
-  position: relative;
-  min-width: 5%;
-  display: inline-block;
-  background-color: #1e691467;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-  max-width: 80%;
-  margin-left: -25px;
-}
-#user-message {
-  position: relative;
-  min-width: 5%;
-  display: inline-block;
-  background-color: #0c64006c;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-  max-width: 80%; 
-}
-#ai-response .dot {
-  width: 10px;
-  height: 10px;
-  background-color: #FFFFFF;
-  border-radius: 50%;
-}
-.dot-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-}
-
-#chat-history-title {
-  background-color: #1E6914;
-  height: 50px;
-  width: 177px;
-  position: relative;
-  /* top: 14%; */
-  left: 50%;
-  transform: translate(-50%, -50%);
-  margin-bottom: 10px;
-  padding: 12px;
-  margin-top: 30px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-}
-#chat-history-content {
-  font-size: small;
-  padding-bottom: 120px;
-}
-#chat-history-content::-webkit-scrollbar {
-display: none; /* This hides the scrollbar */
-}
-#chat-history {
-  position:relative;
+  }
+  #chat-history-title {
+      background-color: #1E6914;
+      width: 10rem;
+  }
+  #chat-history {
   background-color: #00532b5b;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-}
-#chat-history-expand-collapse-button {
-  margin-left: 25px; /* This moves the image 15px to the right */
-  margin-right: 140px;
-}
-#user-info {
-  margin-right: 25px;
-}
-#welcome-container {
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 20px;
-}
-#alchive-gradient
-{
-  background: linear-gradient(to right, #addfad, #32cd32); 
-  -webkit-background-clip: text; 
-  -webkit-text-fill-color: transparent;
+  }
+  #login-alert {
+      background-color: #259c155e;
+  }
+  form button {
+  background-color: #5E3F31;
+  border: 3px solid white;
+  }
+  #ai-response {
+  background-color: #1e691467;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  #user-message {
+  background-color: #0c64006c;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  #bot-icon {
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  #user-chat-head {
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  }
 
-}
-#chat-form {
-  position: absolute;
-  left: 50%;
-  top: 65%;
-  transform: translate(-50%, -60%);
-  margin-bottom: 5%;
-  gap: 0.5rem;
-  /* transition: top 0.3s ease-out, transform 0.4s ease-out; */
-}
-#chat-form textarea{
-  width: 1100px;
-}
-#chat-form.move-down {
-  top: 80%; /* Move the form down after sending the message */
-  transform: translate(-50%, -80%); /* Adjust the translate accordingly */
-}
-#chat-log{
-  padding:30px;
-}
-#chat-log::-webkit-scrollbar {
+  #chat-history-content::-webkit-scrollbar {
   display: none; /* This hides the scrollbar */
-}
-#logout-dropdown {
-  background-color: #1e691481;
-}
-#user-chat-head {
-  height: 50px;
-  width: 50px;
-  margin-left: 10px;
-  /* box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2); */
-  border: 2px solid white;
-}
-#copy-button {
-  display: inline-block;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-#copy-button:hover {
-  transform: scale(1.1); /* Adds a hover effect to the button */
-}
-#copy-button-icon {
-  color: white;
-}
-#ai-response p a {
-  color: rgb(33, 33, 247);
-  text-decoration: underline;
-}
-#message::-webkit-scrollbar {
+  }
+  #message::-webkit-scrollbar {
   display: none;
-}
-#alchive-logo {
-  padding: 0;
-  margin:0;
-  border: 2px solid white;
-  height: 75.2px;
-}
-#chatbot-icon {
-  margin: 0;
-  height: 250px;
-}
-#bot-icon {
-  height: 67px;
-  margin: 0;
-  margin-left: -30px;
-}
-#user-info-icon {
-  margin-left: 145px;
-  border: 2px solid white;
-  height: 40px;
-  width: 40px;
-}
-#login-alert {
-  background-color: #1e691481;
-  border: 2px solid rgba(255, 255, 255, 0.279);
-}
+  }
+  body::-webkit-scrollbar {
+  display: none; /* This hides the scrollbar */
+  }
+  #chat-log::-webkit-scrollbar {
+  display: none; /* This hides the scrollbar */
+  }
+  a {
+      color: blue;
+      text-decoration: underline;
+  }
