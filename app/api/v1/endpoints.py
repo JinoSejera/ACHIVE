@@ -126,10 +126,13 @@ async def chat_alchive(chat_request: ChatRequest, user: dict = Depends(get_curre
     try:
         print(user)
         chat_history = ChatHistory()
-        if chat_request.history:
-            chat_history = chat_history.from_rendered_prompt(chat_request.history)
-        response = await agent.invoke_agent_alchive(chat_request.message, chat_history)
-        return ChatResponse(message=markdown.markdown(response.response), history=response.str_chat_history, user_name=user['name'], user_id=user['email'])
+        if chat_request.message == "###Check-auth-status":
+            return ChatResponse(message="", history="", user_name=user['name'], user_id=user['email'])
+        else:
+            if chat_request.history:
+                chat_history = chat_history.from_rendered_prompt(chat_request.history)
+            response = await agent.invoke_agent_alchive(chat_request.message, chat_history)
+            return ChatResponse(message=markdown.markdown(response.response), history=response.str_chat_history, user_name=user['name'], user_id=user['email'])
     except Exception as e:
         raise ServiceException(e)
 

@@ -180,7 +180,7 @@
                 const response = await fetch('/api/v1/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: 'Check auth status', history: '' })
+                    body: JSON.stringify({ message: '###Check-auth-status', history: '' })
                 });
                 if (response.ok) {
                     const userInfo = await response.json();
