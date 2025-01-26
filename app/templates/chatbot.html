@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Chatbot</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -10,52 +10,54 @@
     <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
     <link rel="stylesheet" href="/static/styles.css">
     <style>
-
     </style>
 </head>
-<body class="bg-green-50 font-poppins text-gray-800">
-    <div id="header" class="flex justify-between items-center text-white rounded-b-3xl h-15">
-        <img id="chat-history-expand-collapse-button" src="/static/img/chat-history.png"  alt="Expand/Collapse" class="text-2xl cursor-pointer" />
-        <img id="alchive-logo" src="/static/img/alchive-logo.png" alt="alchive logo" class="rounded-xl h-10">
+<body class="bg-green-50 font-poppins text-gray-800 h-screen flex flex-col">
+    <div id="header" class="flex justify-between items-center text-white rounded-b-3xl p-3">
+        <img id="chat-history-expand-collapse-button" src="/static/img/chat-history.png" alt="Expand/Collapse" class="cursor-pointer w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-14 lg:h-14 xl:w-16 xl:h-16 text-2xl hover:border-2 hover:border-white hover:shadow-lg transition"/>
+        <img id="alchive-logo" src="/static/img/alchive-logo.png" alt="alchive logo" class="rounded-xl h-11 sm:h-14 md:h-16 lg:h-18 xl:h-18">
         <div id="user-info" class="relative">
-            <img id="user-info-icon" src="/static/img/user-icon.png" alt="user icon" class="w-8 h-8 rounded-full cursor-pointer hidden">
-            <button id="login-button" class="px-4 py-2 text-white-800 rounded-full hover:bg-white hover:text-green-500 transition">Log In</button>
-            <button id="signup-button" class="px-4 py-2 text-white-800 rounded-full hover:bg-white hover:text-green-500 transition ml-2">Sign Up</button>
-            <div id="logout-dropdown" class="hidden absolute top-full right-0 mt-2 w-55 bg-white rounded-lg shadow-lg p-4">
-                <span id="username" class="block text-sm text-white-600"></span>
-                <span id="user_id" class="block text-sm text-white-600 mb-2"></span>
+            <button id="login-button" class="ml-1 px-2 sm:px-4 md:px-6 lg:px-8 xl:px-10 h-8 sm:h-10 md:h-12 lg:h-14 xl:h-16 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-white rounded-full hover:bg-white hover:text-green-500 transition">Login</button>
+            <!-- <button id="signup-button" class="px-4 py-2 text-white rounded-full hover:bg-white hover:text-green-500 transition ml-2">Sign Up</button> -->
+
+            <img id="user-info-icon" src="/static/img/user-icon.png" alt="user icon" class="h-8 sm:h-10 md:h-12 lg:h-14 xl:h-14 rounded-full cursor-pointer hidden hover:border-2 hover:border-white hover:shadow-lg transition">
+            <div id="logout-dropdown" class="hidden absolute top-full right-0 mt-2 w-48 bg-red-600 rounded-lg shadow-lg p-4">
+                <span id="username" class="break-words block text-sm text-white-600"></span>
+                <span id="user_id" class="break-words block text-sm text-white-600 mb-2"></span>
                 <button id="logout-button" class="w-full px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition">Logout</button>
             </div>
         </div>
     </div>
   
-    <div id="chat-container" class="flex h-screen">
+    <div id="chat-container" class="flex flex-grow h-full overflow-hidden">
         <div id="chat-history" class="w-0 transition-all duration-300 ease-in-out overflow-hidden flex flex-col inset-0 z-30">
-            <h2 id="chat-history-title" class="text-white text-center rounded-full">History Record</h2>
-            <div id="chat-history-content" class="overflow-y-scroll text-white flex-grow p-4"></div>
+            <div class="flex-grow flex items-center justify-center">
+                <h2 id="chat-history-title" class="text-white text-center rounded-full mt-2 mb-1 h-12 pt-3 py-2 px-4">History Record</h2>
+            </div>
+            <div id="chat-history-content" class="overflow-y-auto text-white flex-grow p-4"></div>
         </div>
 
-        <div id="chat-main" class="flex-grow flex flex-col p-4 transition-all duration-300 ease-in-out">
-            <div id="welcome-container" class="flex flex-col items-center justify-center h-screen"> 
+        <div id="chat-main" class="flex-grow flex flex-col p-4 transition-all h-full duration-300 ease-in-out">
+            <div id="welcome-container" class="flex flex-col items-center justify-center flex-grow"> 
                 <img id="chatbot-icon" src="/static/img/bot-icon.png" alt="chatbot header" class="rounded-full"> 
-                <div id="welcome-message" class="text-2xl font-bold mt-4"> 
-                   <span class="text-transparent bg-clip-text text-white">Hello! Welcome to</span> <span id="alchive-gradient">Alchive</span><span  class="text-transparent bg-clip-text text-white">, What can I help?</span>
+                <div id="welcome-message" class="text-xl md:text-2xl font-bold mt-4 text-center"> 
+                   <span class="text-white">Hello! Welcome to</span> <span id="alchive-gradient">Alchive</span><span  class="text-white">, What can I help?</span>
                 </div> 
             </div>
-            <div id="chat-log" class="flex-grow overflow-y-auto mb-4 flex flex-col-reverse gap-4"></div>
+            <div id="chat-log" class="hidden flex-grow overflow-y-scroll mb-4 flex flex-col-reverse gap-4"></div>
 
-            <form id="chat-form" class="flex mt-4">
+            <form id="chat-form" class="flex mt-3 mb-64">
                 <!-- <input type="text" id="message" name="message" placeholder="Message Alchive..." class="flex-grow p-2 border-2 text-white border-white-100 rounded-full"> -->
                 <textarea id="message" name="message" placeholder="Message Alchive..." 
-                class="flex-grow p-2 border-2 text-white border-white-100 rounded-full resize-none" rows="1"></textarea>
-                <button type="submit" class="px-6 py-2 text-white rounded-full hover:bg-green-600 transition">Send</button>
+                class="flex-grow p-3 border-2 border-green-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-green-500" rows="1"></textarea>
+                <button id='send-btn' type="submit" class="ml-2 px-6 py-2 text-white rounded-full hover:bg-green-600 transition">Send</button>
             </form>
         </div>
     
     </div>
 
     <div id="login-popup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div id="login-alert"class="bg-white p-8 rounded-lg shadow-xl">
+        <div id="login-alert"class="p-8 rounded-lg shadow-xl">
             <p class="mb-4 text-white">Please log in to continue chatting.</p>
             <div class="flex justify-center space-x-4">
                 <button id="popup-login" class="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition">Login</button>
@@ -63,7 +65,6 @@
             </div>
         </div>
     </div>
-    
 
     <script>
         // JavaScript code remains largely the same, with a few adjustments for Tailwind classes
@@ -83,6 +84,7 @@
 
         const form = document.getElementById('chat-form');
         const chatLog = document.getElementById('chat-log');
+        const chatMain = document.getElementById('chat-main');
         const chatHistoryContent = document.getElementById('chat-history-content');
         const loginButton = document.getElementById('login-button');
         const signupButton = document.getElementById('signup-button');
@@ -97,14 +99,17 @@
         const logoutDropdown = document.getElementById('logout-dropdown');
         const chatHistory = document.getElementById('chat-history');
         const chatHistoryToggle = document.getElementById('chat-history-expand-collapse-button');
-        var ischatHistoryToggle =false;
+        
+        var ischatHistoryToggle = false;
         let chat_history = "";
 
         loginButton.addEventListener('click', login);
         logoutButton.addEventListener('click', logout);
         popupLoginButton.addEventListener('click', login);
+        // loginButtonMobile.addEventListener('click', login);
         popupCancelButton.addEventListener('click', () => {
             loginPopup.classList.add('hidden');
+            location.reload()
         });
 
         userInfoIcon.addEventListener('click', () => {
@@ -119,14 +124,27 @@
 
         chatHistoryToggle.addEventListener('click', () => {
             chatHistory.classList.toggle('w-0');
-            chatHistory.classList.toggle('w-full');
-            chatHistory.classList.toggle('md:w-96');
-            if(!ischatHistoryToggle){
-                ischatHistoryToggle = true;
-            }else{
-                ischatHistoryToggle = false;
-            };
-           console.log(ischatHistoryToggle);
+            chatHistory.classList.toggle('transition-all');
+
+            // Adjust width based on screen size
+            if (chatHistory.classList.contains("w-0")){
+                // Set width to 0 when collapsed
+                chatHistory.style.width = '0';
+            } else {
+                // Set the width based on screen size
+                if (window.innerWidth < 600) { // Small screens (phones)
+                    chatHistory.style.width ='80vw';
+                    chatMain.style.width = '20vw';
+                    chatMain.classList.remove('blur-full');
+                } else if (window.innerWidth < 1024) { // Medium screens (tablets)
+                    chatHistory.style.width = '60vw';
+                } else { // Large screens (desktops)
+                    chatHistory.style.width = '30vw';
+                }
+            }
+
+            isChatHistoryToggle = !isChatHistoryToggle
+            console.log(ischatHistoryToggle);
         });
 
         async function login() {
@@ -145,14 +163,12 @@
             if (account) {
                 usernameSpan.textContent = account.name;
                 useridSpan.textContent = account.id;
-                signupButton.classList.add('hidden');
                 loginButton.classList.add('hidden');
                 logoutButton.classList.remove('hidden');
                 userInfoIcon.classList.remove('hidden');
                 loadChatHistory();
             } else {
                 usernameSpan.textContent = '';
-                signupButton.classList.remove('hidden');
                 loginButton.classList.remove('hidden');
                 logoutButton.classList.add('hidden');
                 chatHistoryContent.innerHTML = '';
@@ -224,20 +240,35 @@
             event.preventDefault();
 
             // Change the position of the chat-form after message submission
-            document.getElementById('chat-form').classList.add('move-down'); // Trigger the animation
+            const chatForm = document.getElementById("chat-form");
+            const chatLog = document.getElementById("chat-log");
+            const sendButton = document.getElementById("send-btn");
 
-            document.getElementById('welcome-message').classList.add('hidden');
-            document.getElementById('chatbot-icon').classList.add('hidden');
             const message = document.getElementById('message').value;
             
-            // Change the position of the chat-form after message submission
-            document.getElementById('chat-form').style.position = 'relative';
-            document.getElementById('chat-form').style.left = 'auto';
-            document.getElementById('chat-form').style.top = 'auto';
-            document.getElementById('chat-form').style.transform = 'translateY(-30px)';
+            if (!message.trim()) return;
+
+            // Dissable the send buttom and show loading dots
+            sendButton.disabled = true;
+            sendButton.innerHTML = `<div class="relative w-8 h-8 animate-rotate">
+                                        <div class="dot absolute w-3 h-3 bg-white rounded-full"></div>
+                                        <div class="dot absolute w-3 h-3 bg-white-500 rounded-full"></div>
+                                        <div class="dot absolute w-3 h-3 bg-white-500 rounded-full"></div>
+                                        <div class="dot absolute w-3 h-3 bg-white-500 rounded-full"></div>
+                                        <div class="dot absolute w-3 h-3 bg-white-500 rounded-full"></div>
+                                        <div class="dot absolute w-3 h-3 bg-white-500 rounded-full"></div>
+                                    </div>`;
 
             if (!welcomeContainer.classList.contains('hidden')) {
                 welcomeContainer.classList.add('hidden');
+                chatLog.classList.remove('hidden');
+                chatLog.classList.add('vissible');
+                chatForm.classList.remove('mb-64');
+                chatForm.classList.add('mt-4');
+            }
+            // Optionally, scroll to the bottom of the chat log
+            if (chatLog) {
+                chatLog.scrollIntoView({ behavior: "smooth" });
             }
 
             const userMessage = `
@@ -245,7 +276,7 @@
                     <div id="user-message" class="bg-green-500 text-white rounded-xl py-2 px-4 max-w-xs lg:max-w-md">
                         ${message}
                     </div>
-                    <img id="user-chat-head" src="/static/img/user-icon.png" alt="User" class="rounded-full">
+                    <img id="user-chat-head" src="/static/img/user-icon.png" alt="User" class="w-8 h-8 rounded-full ml-2">
                 </div>`;
             chatLog.innerHTML = userMessage + chatLog.innerHTML;
             form.reset();
@@ -259,15 +290,16 @@
 
             const dotsMessage = `
                 <div class="flex mb-4 items-end">
-                    <img id="bot-icon" src="/static/img/bot-icon.png" alt="Bot" class="rounded-full">
-                    <div id="ai-response" class="rounded-xl py-2 px-4">
-                        <div class="dot-container">
-                            <div class="dot"></div>
-                            <div class="dot"></div>
-                            <div class="dot"></div>
+                    <img id="bot-icon" src="/static/img/bot-icon.png" alt="Bot" class="w-14 rounded-full mr-2">
+                    <div id="ai-response" class="bg-green-100 rounded-xl py-2 px-4">
+                        <div class="dot-container flex space-x-2">
+                            <div class="w-2 h-2 bg-green-500 rounded-full dot"></div>
+                            <div class="w-2 h-2 bg-green-500 rounded-full dot"></div>
+                            <div class="w-2 h-2 bg-green-500 rounded-full dot"></div>
                         </div>
                     </div>
-                </div>`;
+                </div>
+                `;
             chatLog.innerHTML = dotsMessage + chatLog.innerHTML;
 
             try {
@@ -281,6 +313,8 @@
 
                 if (response.status === 401) {
                     loginPopup.classList.remove('hidden');
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Send'
                     chatLog.innerHTML = chatLog.innerHTML.replace(dotsMessage, '');
                     return;
                 }
@@ -293,7 +327,7 @@
 
                 const aiResponse = `
                     <div class="flex mb-4 items-end">
-                        <img id="bot-icon" src="/static/img/bot-icon.png" alt="Bot" class="rounded-full">
+                        <img id="bot-icon" src="/static/img/bot-icon.png" alt="Bot" class="w-14 rounded-full mr-2">
                         <div id="ai-response" class="text-white rounded-xl py-2 px-4 max-w-xs lg:max-w-md flex-grow">
                             ${result.message}
                         </div>
@@ -312,12 +346,15 @@
 
                 const errorMessage = `
                     <div class="flex mb-4 items-end">
-                        <img id="bot-icon" src="/static/img/bot-icon.png" alt="Bot" class="rounded-full">
+                        <img id="bot-icon" src="/static/img/bot-icon.png" alt="Bot" class="w-14 rounded-full mr-2">
                         <div class="bg-red-100 border border-red-400 text-red-700 rounded-xl py-2 px-4">
                             An error occurred. Please try again.
                         </div>
                     </div>`;
                 chatLog.innerHTML = errorMessage + chatLog.innerHTML;
+            } finally {
+                sendButton.disabled = false;
+                sendButton.textContent = 'Send';
             }
         });
 
@@ -333,41 +370,25 @@
             });
         }
 
-        document.getElementById('message').addEventListener('input', function () {
-            const textarea = this;
-            const maxHeight = 50; // Maximum height of the input box (in px, set to desired value)
-            const minHeight = 40;  // Minimum height of the input box (in px, set to desired value)
-
-            // Reset the height to auto to shrink before expanding
-            textarea.style.height = 'auto';
-
-            // Set the height to the scroll height but make sure it doesn't exceed the maxHeight
-            textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
-            
-            // If the height exceeds the maxHeight, make it scrollable
-            if (textarea.scrollHeight > maxHeight) {
-                textarea.style.overflowY = 'auto'; // Enable scrolling
-            } else {
-                textarea.style.overflowY = 'hidden'; // Disable scrolling
-            }
+        const messageTextarea = document.getElementById("message")
+        
+        messageTextarea.addEventListener("input", function () {
+            const maxHeight = 100 // Maximum height of the input box (in px)
+            this.style.height = "auto"
+            this.style.height = Math.min(this.scrollHeight, maxHeight) + "px"
+            this.style.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden"
         });
 
         // Ensure the textarea starts at the correct height on page load
         window.addEventListener('load', () => {
-            const textarea = document.getElementById('message');
-            textarea.style.height = textarea.scrollHeight + 'px';
+            messageTextarea.style.height = messageTextarea.scrollHeight + "px"
         });
+
         // Event listener for Enter key press to submit the message
-        document.getElementById('message').addEventListener('keydown', function(event) {
-            const textarea = this;
-
-            // Check if the Enter key (key code 13) is pressed
-            if (event.key === 'Enter' && !event.shiftKey) {
-                // Prevent default action (creating a new line)
-                event.preventDefault();
-
-                // Submit the form when Enter is pressed
-                document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+        messageTextarea.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault()
+                document.getElementById("chat-form").dispatchEvent(new Event("submit"))
             }
         });
     </script>
